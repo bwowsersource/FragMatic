@@ -1,0 +1,16 @@
+{
+  "name": "promax",
+  "version": "1.0.0",
+  "description": "html pro max",
+  "main": "index.js",
+  "author": "Akash",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "rollup": "^2.70.0"
+  },
+  "scripts": {
+    "build": "rollup index.js --file ./.bundle/script.js --format iife",
+    "dev": "rollup index.js --file ./.bundle/script.js --format iife --watch"
+  }
+}

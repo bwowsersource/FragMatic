@@ -1,0 +1,15 @@
+<div>
+  <h1>Hello world</h1>
+  <p>This page is included. Next paragraph is included from this page</p>
+  <p>
+    <promax-include src="/src/welcomePage" />
+  </p>
+
+<script>
+  console.log(promax);
+promax((ctx) => {
+  console.log("Doing things with promax ctx", ctx);
+});
+</script>
+
+</div>

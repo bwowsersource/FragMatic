@@ -42,7 +42,7 @@ var htmlPromax = {};
             }
             /* Remove the attribute, and call this function once more: */
             //   elmnt.removeAttribute("w3-include-html");
-            bindKey(elmnt, makeKey(dupeCheck), file);
+            bindKey(elmnt, makeKey(dupeCheck), file, ctx);
             includeHTML(count + 1);
           }
         };
