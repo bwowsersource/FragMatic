@@ -1,7 +1,12 @@
 // https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
 import { INCLUDE_TAG } from "./constants";
 import { makeKey } from "./utils";
-import { dupeCheck, bindKey, promaxLookup } from "./treeTracker";
+import {
+  dupeCheck,
+  bindKey,
+  promaxLookup,
+  promaxLookupByRoot,
+} from "./treeTracker";
 class PromaxComponent extends HTMLElement {
   loaded = false;
   parentCtxHandler = null;
@@ -18,9 +23,9 @@ class PromaxComponent extends HTMLElement {
     if (window.promax) {
       this.parentCtxHandler = window.promax;
     }
-    window.promax = window.promaxFindCtx(bindKey);
+    window.promax = window.promaxGetInitializer(bindKey);
     // const script = document.createElement("script");
-    // script.textContent = `window.promax = window.promaxFindCtx('${bindKey}')`;
+    // script.textContent = `window.promax = window.promaxGetInitializer('${bindKey}')`;
   }
 
   induceExec() {
@@ -54,7 +59,7 @@ class PromaxComponent extends HTMLElement {
         if (this.readyState == 4) {
           if (this.status == 200) {
             const renderKey = makeKey(dupeCheck);
-            bindKey(hostEl, renderKey, src);
+            bindKey(hostEl, renderKey, elmnt);
             // insert component handler
             hostEl.insertCtx(renderKey);
             elmnt.innerHTML = this.responseText;
@@ -75,9 +80,56 @@ class PromaxComponent extends HTMLElement {
 }
 
 export function promaxify() {
-  window.promaxFindCtx = (key) => {
+  window.pscope = new Proxy(
+    {},
+    {
+      get: (t, scopeKey) => {
+        return (e) => {
+          const targetEl = e.target;
+          if (!targetEl) {
+            throw new Error(
+              "scope methods can only be used for event handlers"
+            );
+          }
+          const root = targetEl.getRootNode();
+          const { ctx } = promaxLookupByRoot(root);
+          const handler = ctx.scope[scopeKey];
+          console.log(ctx);
+          handler(e);
+          ctx.asyncRender && ctx.asyncRender();
+        };
+      },
+    }
+  );
+
+  window.promaxGetInitializer = (key) => {
     const { elmnt, ctx } = promaxLookup(key);
-    return (componentHandler) => componentHandler(ctx);
+
+    function newState(initialState) {
+      let _state = { ...initialState };
+      let asyncRender = () => {
+        if ("logging") console.log("Skipping pre-register render call.");
+      };
+      const withRenderer = (renderer) => {
+        asyncRender = (newState) => {
+          _state = { ..._state, ...newState };
+          renderer({ root: elmnt.shadowRoot, state: _state });
+        };
+        asyncRender(_state); // just to invoke renderer()
+        ctx.asyncRender = asyncRender;
+        return { withContext };
+      };
+      const withContext = (createContext) => {
+        const scope = createContext({
+          state: _state,
+          asyncRender,
+        });
+        Object.freeze(scope);
+        ctx.scope = scope;
+      };
+      return { withRenderer };
+    }
+    return { newState };
   };
   customElements.define(INCLUDE_TAG, PromaxComponent);
 }
