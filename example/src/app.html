@@ -2,33 +2,52 @@
   <h1 id="title">Hello world</h1>
   <p>This page is included. Next paragraph is included from this page</p>
   <p>
-    <promax-include src="/src/welcomePage" />
+    <p-frame src="/src/welcomePage" />
   </p>
 
   <script>
     promax
-      .newState({
+      .initState({
         //state
         title: "Default title",
+        buttonTxt: "Lets go!!"
       })
-      .withRenderer(({root, state}) => {
-        console.log(root)
-        root.getElementById("title").innerHTML = state.title;
+      .setRenderer(({ root, state, memo }) => {
+        const { title, buttonTxt } = state;
+        memo("title", [title], () => {
+          console.log("Updating title");
+          root.getElementById("title").innerHTML = title;
+        });
+        memo("button", [buttonTxt], () => {
+          console.log("Updating button");
+          root.getElementById("button").innerHTML = buttonTxt;
+        });
       })
-      .withContext(({state, asyncRender}) => {
+      .attachScope(({ getState, patchDom }) => {
         setTimeout(
-          () => asyncRender({ title: "Title changed after 10 sec" }),
-          10000
+          () => patchDom({ title: "Title changed after 3 sec" }),
+          3000
         );
+        let buttonReset;
         const btnClick = (e) => {
-          e.target.innerHTML = "clicked";
-          e.target.disabled = true;
-          state.title = "Clicked";
+          // xxx xxx xxx  - Don't do this.
+          // e.target.innerHTML = "clicked";
+          // e.target.disabled = true;
+          clearTimeout(buttonReset);
+          const initState = {
+            title: "Clicked",
+            buttonTxt: "clicked!",
+          };
+          patchDom(initState);
+          buttonReset = setTimeout(
+            () => patchDom({ buttonTxt: "Button" }),
+            3000
+          );
         };
         return {
           btnClick,
         };
       });
   </script>
-  <button onclick="pscope.btnClick(event)">Button</button>
+  <button onclick="pscope.btnClick(event)" id="button">Button</button>
 </div>

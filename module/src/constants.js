@@ -1,1 +1,1 @@
-export const INCLUDE_TAG = "promax-include";
+export const INCLUDE_TAG = "p-frame";

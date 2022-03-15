@@ -1,6 +1,6 @@
 // https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
 import { INCLUDE_TAG } from "./constants";
-import { makeKey } from "./utils";
+import { makeKey, memoRenderer } from "./utils";
 import {
   dupeCheck,
   bindKey,
@@ -94,9 +94,8 @@ export function promaxify() {
           const root = targetEl.getRootNode();
           const { ctx } = promaxLookupByRoot(root);
           const handler = ctx.scope[scopeKey];
-          console.log(ctx);
           handler(e);
-          ctx.asyncRender && ctx.asyncRender();
+          // ctx.patchDom && ctx.patchDom();
         };
       },
     }
@@ -105,31 +104,37 @@ export function promaxify() {
   window.promaxGetInitializer = (key) => {
     const { elmnt, ctx } = promaxLookup(key);
 
-    function newState(initialState) {
+    function initState(initialState) {
       let _state = { ...initialState };
-      let asyncRender = () => {
+      let patchDom = () => {
         if ("logging") console.log("Skipping pre-register render call.");
       };
-      const withRenderer = (renderer) => {
-        asyncRender = (newState) => {
-          _state = { ..._state, ...newState };
-          renderer({ root: elmnt.shadowRoot, state: _state });
+      const setRenderer = (renderer) => {
+        const memo = memoRenderer();
+        patchDom = (initState) => {
+
+          _state = { ..._state, ...initState };
+          renderer({
+            memo,
+            state: _state,
+            root: elmnt.shadowRoot,
+          });
         };
-        asyncRender(_state); // just to invoke renderer()
-        ctx.asyncRender = asyncRender;
-        return { withContext };
+        patchDom(_state); // just to invoke renderer()
+        ctx.patchDom = patchDom;
+        return { attachScope };
       };
-      const withContext = (createContext) => {
+      const attachScope = (createContext) => {
         const scope = createContext({
-          state: _state,
-          asyncRender,
+          getState: ()=>_state,
+          patchDom,
         });
         Object.freeze(scope);
         ctx.scope = scope;
       };
-      return { withRenderer };
+      return { setRenderer };
     }
-    return { newState };
+    return { initState };
   };
   customElements.define(INCLUDE_TAG, PromaxComponent);
 }

@@ -10,3 +10,19 @@ export function makeKey(dupeCheck, depth = 0) {
   if (dupeCheck(key)) return key;
   return makeKey(dupeCheck, depth + 1);
 }
+
+export function memoRenderer() {
+  let lastArgsMap = new Map();
+  return function (name, args, renderer) {
+    const lastArgs = lastArgsMap.get(name);
+    if (
+      lastArgs &&
+      lastArgs.every((lastArg, i) => args[i] === lastArg)
+      // skip render if value is undefined
+    ) {
+      return; //dont render
+    }
+    lastArgsMap.set(name, args);
+    renderer();
+  };
+}

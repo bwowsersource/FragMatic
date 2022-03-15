@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const INCLUDE_TAG = "promax-include";
+  const INCLUDE_TAG = "p-frame";
 
   function depthBreak(depth) {
     if (depth > 99) {
@@ -14,6 +14,22 @@
     const key = btoa(Math.random().toString()).substring(2, 10);
     if (dupeCheck(key)) return key;
     return makeKey(dupeCheck, depth + 1);
+  }
+
+  function memoRenderer() {
+    let lastArgsMap = new Map();
+    return function (name, args, renderer) {
+      const lastArgs = lastArgsMap.get(name);
+      if (
+        lastArgs &&
+        lastArgs.every((lastArg, i) => args[i] === lastArg)
+        // skip render if value is undefined
+      ) {
+        return; //dont render
+      }
+      lastArgsMap.set(name, args);
+      renderer();
+    };
   }
 
   const includeTree = {};
@@ -131,9 +147,8 @@
             const root = targetEl.getRootNode();
             const { ctx } = promaxLookupByRoot(root);
             const handler = ctx.scope[scopeKey];
-            console.log(ctx);
             handler(e);
-            ctx.asyncRender && ctx.asyncRender();
+            // ctx.patchDom && ctx.patchDom();
           };
         },
       }
@@ -142,31 +157,37 @@
     window.promaxGetInitializer = (key) => {
       const { elmnt, ctx } = promaxLookup(key);
 
-      function newState(initialState) {
+      function initState(initialState) {
         let _state = { ...initialState };
-        let asyncRender = () => {
+        let patchDom = () => {
           console.log("Skipping pre-register render call.");
         };
-        const withRenderer = (renderer) => {
-          asyncRender = (newState) => {
-            _state = { ..._state, ...newState };
-            renderer({ root: elmnt.shadowRoot, state: _state });
+        const setRenderer = (renderer) => {
+          const memo = memoRenderer();
+          patchDom = (initState) => {
+
+            _state = { ..._state, ...initState };
+            renderer({
+              memo,
+              state: _state,
+              root: elmnt.shadowRoot,
+            });
           };
-          asyncRender(_state); // just to invoke renderer()
-          ctx.asyncRender = asyncRender;
-          return { withContext };
+          patchDom(_state); // just to invoke renderer()
+          ctx.patchDom = patchDom;
+          return { attachScope };
         };
-        const withContext = (createContext) => {
+        const attachScope = (createContext) => {
           const scope = createContext({
-            state: _state,
-            asyncRender,
+            getState: ()=>_state,
+            patchDom,
           });
           Object.freeze(scope);
           ctx.scope = scope;
         };
-        return { withRenderer };
+        return { setRenderer };
       }
-      return { newState };
+      return { initState };
     };
     customElements.define(INCLUDE_TAG, PromaxComponent);
   }
