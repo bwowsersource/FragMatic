@@ -2,9 +2,10 @@
   'use strict';
 
   const INCLUDE_TAG = "p-frame";
+  const INCLUDE_DEPTH = 99;
 
   function depthBreak(depth) {
-    if (depth > 99) {
+    if (depth > INCLUDE_DEPTH) {
       throw new Error("Maximum include depth reached!!");
     }
   }

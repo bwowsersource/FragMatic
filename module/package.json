@@ -1,7 +1,7 @@
 {
-  "name": "promax",
+  "name": "@romax/romax",
   "version": "1.0.0",
-  "description": "html pro max",
+  "description": "Romax is a  UI toolkit, that makes use of native HTML and javascript features to create simple embedable HTML modules.",
   "main": "index.js",
   "author": "Akash",
   "license": "MIT",
@@ -12,5 +12,19 @@
   "scripts": {
     "build": "rollup index.js --file ./.bundle/script.js --format iife",
     "dev": "rollup index.js --file ./.bundle/script.js --format iife --watch"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bwowsersource/promax.git"
+  },
+  "keywords": [
+    "romax",
+    "html",
+    "ui",
+    "framework"
+  ],
+  "bugs": {
+    "url": "https://github.com/bwowsersource/promax/issues"
+  },
+  "homepage": "https://github.com/bwowsersource/promax#readme"
 }

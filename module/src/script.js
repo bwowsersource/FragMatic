@@ -1,12 +1,10 @@
+import { depthBreak } from "./utils";
+
 var htmlPromax = {};
 (() => {
   const includeTree = {};
   const dupeCheck = (key) => !includeTree[key];
-  function depthBreak(depth) {
-    if (depth > 99) {
-      throw new Error("Maximum include depth reached!!");
-    }
-  }
+
   function makeKey(dupeCheck, depth = 0) {
     depthBreak(depth);
     const key = btoa(Math.random().toString()).substring(2, 10);

@@ -1,5 +1,7 @@
+import { INCLUDE_DEPTH } from "./constants";
+
 export function depthBreak(depth) {
-  if (depth > 99) {
+  if (depth > INCLUDE_DEPTH) {
     throw new Error("Maximum include depth reached!!");
   }
 }

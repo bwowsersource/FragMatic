@@ -2,10 +2,6 @@
 
 This project is only a technical demonstrator at this point. please come back later.
 
-To run examples
+To run examples, start an http server at root of project, then navigate to `{address_of_created_server}/examples`
 
-> Copy `./module` inside `./example` 
-
-*OR*
-
-> On linux/mac, create a symlink with `ln -s ./module/ ./example/module`
+> Example: `npx serve .` 
