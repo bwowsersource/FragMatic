@@ -1,6 +1,6 @@
 {
-  "name": "@romax/romax",
-  "version": "1.0.0",
+  "name": "romax",
+  "version": "1.0.1",
   "description": "Romax is a  UI toolkit, that makes use of native HTML and javascript features to create simple embedable HTML modules.",
   "main": "index.js",
   "author": "Akash",
