@@ -15,10 +15,8 @@
   "scripts": {
     "build": "rollup index.js --file ./.bundle/script.js --format iife",
     "dev": "rollup index.js --file ./.bundle/script.js --format iife --watch",
-    "example": "copy-and-watch --watch ../example/* .bundle/",
-    "example:win": "copy-and-watch --watch ..\\example\\**\\*.{html,js,css} .bundle\\",
-    "serve": "npm run dev & npm run example & serve .bundle",
-    "serve:win": "concurrently --kill-others \"npm run dev\" \"npm run example:win\"  \"serve .bundle\""
+    "example": "mkdir -p .bundle && cp -rf ../example/* .bundle && serve .bundle",
+    "example:win": "copy-and-watch --watch ..\\example\\**\\*.{html,js,css} .bundle\\"
   },
   "repository": {
     "type": "git",

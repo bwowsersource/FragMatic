@@ -1,0 +1,20 @@
+<button id="button" onclick="pscope.clickListener(event)">
+  This is the welcome page!! This is also an html file. :)
+</button>
+<script>
+  component
+    .initState({ buttonText: "starting" })
+    .setRenderer(({ root, state }) => {
+      root.getElementById("button").innerHTML = state.bodyText;
+    })
+    .attachScope(({ getState, patchDom }) => {
+      let clickCount = 0;
+      return {
+        // returns scope object
+        clickListener: () => {
+          clickCount++;
+          patchDom({ bodyText: "Clicked " + clickCount });
+        },
+      };
+    });
+</script>

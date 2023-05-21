@@ -1,0 +1,53 @@
+<div>
+  <h1 id="title">Hello world</h1>
+  <p>This page is included. Next paragraph is included from this page</p>
+  <p>
+    <p-frame src="/src/welcomePage" />
+  </p>
+
+  <script>
+    component
+      .initState({
+        //state
+        title: "Default title",
+        buttonTxt: "Lets go!!"
+      })
+      .setRenderer(({ root, state, memo }) => {
+        const { title, buttonTxt } = state;
+        memo("title", [title], () => {
+          console.log("Updating title");
+          root.getElementById("title").innerHTML = title;
+        });
+        memo("button", [buttonTxt], () => {
+          console.log("Updating button");
+          root.getElementById("button").innerHTML = buttonTxt;
+        });
+      })
+      .attachScope(({ getState, patchDom }) => {
+        setTimeout(
+          () => patchDom({ title: "Title changed after 3 sec" }),
+          3000
+        );
+        let buttonReset;
+        const btnClick = (e) => {
+          // xxx xxx xxx  - Don't do this.
+          // e.target.innerHTML = "clicked";
+          // e.target.disabled = true;
+          clearTimeout(buttonReset);
+          const initState = {
+            title: "Clicked",
+            buttonTxt: "clicked!",
+          };
+          patchDom(initState);
+          buttonReset = setTimeout(
+            () => patchDom({ buttonTxt: "Button" }),
+            3000
+          );
+        };
+        return {
+          btnClick,
+        };
+      });
+  </script>
+  <button onclick="pscope.btnClick(event)" id="button">Button</button>
+</div>
