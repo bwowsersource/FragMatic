@@ -1,5 +1,5 @@
 // https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
-import { INCLUDE_TAG } from "./constants";
+import consts from "./constants";
 import { makeKey, memoRenderer } from "./utils";
 import {
   dupeCheck,
@@ -7,6 +7,8 @@ import {
   promaxLookup,
   promaxLookupByRoot,
 } from "./treeTracker";
+
+const { INCLUDE_TAG } =consts;
 class PromaxComponent extends HTMLElement {
   loaded = false;
   parentCtxHandler = null;
@@ -20,12 +22,12 @@ class PromaxComponent extends HTMLElement {
   }
 
   insertCtx(bindKey) {
-    if (window.promax) {
-      this.parentCtxHandler = window.promax;
+    if (window.component) {
+      this.parentCtxHandler = window.component;
     }
-    window.promax = window.promaxGetInitializer(bindKey);
+    window.component = window.GetComponentInitializer(bindKey);
     // const script = document.createElement("script");
-    // script.textContent = `window.promax = window.promaxGetInitializer('${bindKey}')`;
+    // script.textContent = `window.component = window.GetComponentInitializer('${bindKey}')`;
   }
 
   induceExec() {
@@ -37,9 +39,9 @@ class PromaxComponent extends HTMLElement {
     });
   }
   removeCtx() {
-    delete window.promax;
+    delete window.component;
     if (this.parentCtxHandler) {
-      window.promax = this.parentCtxHandler;
+      window.component = this.parentCtxHandler;
     }
   }
 
@@ -101,7 +103,7 @@ export function promaxify() {
     }
   );
 
-  window.promaxGetInitializer = (key) => {
+  window.GetComponentInitializer = (key) => {
     const { elmnt, ctx } = promaxLookup(key);
 
     function initState(initialState) {

@@ -1,4 +1,5 @@
-import { INCLUDE_DEPTH } from "./constants";
+import consts from "./constants";
+const { INCLUDE_DEPTH } = consts;
 
 export function depthBreak(depth) {
   if (depth > INCLUDE_DEPTH) {

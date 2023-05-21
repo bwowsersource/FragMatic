@@ -1,2 +1,6 @@
-export const INCLUDE_TAG = "p-frame";
-export const INCLUDE_DEPTH = 99;
+export default  {
+    INCLUDE_TAG: "c-frame",
+    INCLUDE_DEPTH: 99,
+    COMPONENTSCRIPT_TAG: "c-script",
+    COMPONENTSCRIPT_SCOPE_ATTR: "component"
+}
