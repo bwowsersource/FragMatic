@@ -142,7 +142,10 @@
     }
 
     function promaxify() {
-      window.pscope = new Proxy(
+      // proxy object that can be used in html event attributes using a magic global called $controller.
+      // It can only be used in place of event handler attributes.
+      // the higherOrder function can find the mapping from clicked element to a registered controller and call the handler from there
+      window.$controller = new Proxy(
         {},
         {
           get: (t, scopeKey) => {
@@ -163,6 +166,11 @@
         }
       );
 
+
+      // returns the starting point of a new controller chain. 
+      // each controller generated controller-chain is registered to a lookup hashtable
+      // key parameter is used to identify existing controller and create if not existing.
+      // Key must be unique. Promax generates unique ids for each attached component
       window.GetComponentInitializer = (key) => {
         const { elmnt, ctx } = promaxLookup(key);
 
@@ -202,5 +210,6 @@
     }
 
     window.promaxify = promaxify;
+    if(window.INIT_PROMAX===true) promaxify();
 
 })();
